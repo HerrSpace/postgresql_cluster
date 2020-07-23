@@ -54,7 +54,6 @@ postgresql_packages:
 #  - postgresql-{{ postgresql_version }}-repack"
 
 # Extra packages
-etcd_package_repo: "https://github.com/etcd-io/etcd/releases/download/{{ etcd_ver }}/etcd-{{ etcd_ver }}-linux-amd64.tar.gz"
 wal_g_package_repo: "https://github.com/wal-g/wal-g/releases/download/{{ wal_g_ver }}/wal-g.linux-amd64.tar.gz"
 vip_manager_package_repo: "https://github.com/cybertec-postgresql/vip-manager/releases/download/v{{ vip_manager_version }}/vip-manager_{{ vip_manager_version }}-1_amd64.deb"
 # (if with_haproxy_load_balancing: true)
@@ -90,7 +89,7 @@ installation_method: "repo"  # (default)"repo" or "file"
 
 # Patroni package will be installed from the pip (by default).
 # You also have the option of choosing an patroni installation method using the deb package.
-patroni_installation_method: "pip"  # (default)"pip" or "deb"
+patroni_installation_method: "deb"  # (default)"pip" or "deb"
 
 # (if patroni_installation_type: "pip")
 # Packages from your repository will be used to install instead of the pip repository.
@@ -160,7 +159,6 @@ patroni_pip_package_file:
 patroni_deb_package_file: "patroni_1.6.0-2.pgdg90+1_all.deb"  # (package for Debian 9) https://apt.postgresql.org/pub/repos/apt/pool/main/p/patroni/
 
 # additional packages
-etcd_package_file: "etcd-v3.3.15-linux-amd64.tar.gz"  # https://github.com/etcd-io/etcd/releases
 wal_g_package_file: "wal-g.linux-amd64.tar.gz"  # https://github.com/wal-g/wal-g/releases
 vip_manager_package_file: "vip-manager_0.6-1_amd64.deb"  # https://github.com/cybertec-postgresql/vip-manager/releases
 # (if with_haproxy_load_balancing: true)

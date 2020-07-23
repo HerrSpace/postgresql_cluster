@@ -4,85 +4,38 @@
 - name: Make sure handlers are flushed immediately
   meta: flush_handlers
 
-- block:  # install etcd package from repo
-    - name: Download "etcd" package
-      get_url:
-        url: "{{ item }}"
-        dest: /tmp/
-        timeout: 60
-        validate_certs: false
-      loop:
-        - "{{ etcd_package_repo }}"
-      environment: "{{ proxy_env | default({}) }}"
-
-    - name: Extract "etcd" into /tmp
-      unarchive:
-        src: "/tmp/{{ etcd_package_repo | basename }}"
-        dest: /tmp/
-        remote_src: true
-
-    - name: Copy "etcd" and "etcdctl" binary files to /usr/local/bin/
-      copy:
-        src: "/tmp/{{ etcd_package_repo.split('.tar.gz')[0] | basename }}/{{ item }}"
-        dest: /usr/local/bin/
-        mode: u+x,g+x,o+x
-        remote_src: true
-      loop:
-        - etcd
-        - etcdctl
-  when: installation_method == "repo" and etcd_package_repo | length > 0
-  tags: etcd, etcd_install
-
-- block:  # install etcd package from file
-    - name: Extract "etcd" into /tmp
-      unarchive:
-        src: "{{ etcd_package_file }}"
-        dest: /tmp/
-
-    - name: Copy "etcd" and "etcdctl" binary files to /usr/local/bin/
-      copy:
-        src: "/tmp/{{ etcd_package_file.split('.tar.gz')[0] | basename }}/{{ item }}"
-        dest: /usr/local/bin/
-        mode: u+x,g+x,o+x
-        remote_src: true
-      loop:
-        - etcd
-        - etcdctl
-  when: installation_method == "file" and etcd_package_file | length > 0
-  tags: etcd, etcd_install
-
-- name: Add etcd user
-  user:
+- name: Install patroni etcd
+  package:
     name: etcd
-    shell: /usr/sbin/nologin
-    home: "{{ etcd_data_dir }}"
-  tags: etcd, etcd_conf
+    state: present
+  tags: etcd, etcd_install
 
-- name: Create etcd conf directory
-  file:
-    path: /etc/etcd
-    state: directory
-  tags: etcd, etcd_conf
-
-- name: Generate conf file "/etc/etcd/etcd.conf"
+# FIXME: Don't keep the initial setup config for ever.
+- name: Generate conf file "/etc/default/etcd"
   template:
     src: templates/etcd.conf.j2
-    dest: /etc/etcd/etcd.conf
+    dest: /etc/default/etcd
   tags: etcd, etcd_conf
 
-- name: Copy systemd service file
-  template:
-    src: templates/etcd.service.j2
-    dest: /etc/systemd/system/etcd.service
-  tags: etcd, etcd_conf
+# The debian package autostarts and bootstraps a single node cluster even before
+# we get to write that config above, so we need to stop, clean and start etcd.
+# FIXME: This is a total hack and should not kill etcd every time we run
+# ansible. Use a handler that listens on the etcd installation or something..
+- name: Stop etcd service
+  systemd:
+    name: etcd
+    state: stopped
+
+- name: Recursively remove directory
+  file:
+    path: "{{ etcd_data_dir }}/default"
+    state: absent
 
 - name: Enable and start etcd service
   systemd:
-    daemon_reload: true
     name: etcd
     enabled: true
     state: started
-  tags: etcd, etcd_start
 
 - name: Wait for port 2379 to become open on the host
   wait_for:
@@ -96,7 +49,7 @@
 
 - block:
     - name: Wait until the etcd cluster is healthy
-      command: /usr/local/bin/etcdctl cluster-health
+      command: /usr/bin/etcdctl cluster-health
       environment:
         ETCDCTL_API: 2
       register: etcd_health_result
