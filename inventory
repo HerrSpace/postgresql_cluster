@@ -7,25 +7,25 @@
 
 # if dcs_exists: false and dcs_type: "etcd" (in vars/main.yml)
 [etcd_cluster]  # recommendation: 3 or 5-7 nodes
-10.128.64.140
-10.128.64.142
-10.128.64.143
+db1.hetzner.the-space.agency
+db2.hetzner.the-space.agency
+db3.hetzner.the-space.agency
 
 
 # if with_haproxy_load_balancing: true (in vars/main.yml)
 [balancers]
-10.128.64.140
-10.128.64.142
-10.128.64.143
+db1.hetzner.the-space.agency
+db2.hetzner.the-space.agency
+db3.hetzner.the-space.agency
 
 
 # PostgreSQL nodes
 [master]
-10.128.64.140 hostname=pgnode01 postgresql_exists='false'
+db1.hetzner.the-space.agency
 
 [replica]
-10.128.64.142 hostname=pgnode02
-10.128.64.143 hostname=pgnode03
+db2.hetzner.the-space.agency
+db3.hetzner.the-space.agency
 
 [postgres_cluster:children]
 master
@@ -33,7 +33,7 @@ replica
 
 
 # In this example, all components will be installed on PostgreSQL nodes
-# You can deploy the etcd cluster and the haproxy balancers on other dedicated servers. 
+# You can deploy the etcd cluster and the haproxy balancers on other dedicated servers.
 
 
 # if pgbackrest_install: true and "repo_host" is set (in vars/main.yml)
@@ -44,10 +44,9 @@ replica
 [all:vars]
 ansible_connection='ssh'
 ansible_ssh_port='22'
-ansible_user='root'
-ansible_ssh_pass='secretpassword'  # "sshpass" package is required for use "ansible_ssh_pass"
-# ansible_ssh_private_key_file=
-# ansible_python_interpreter='/usr/bin/python3'  # is required for use python3
+ansible_user='user'
+ansible_become=yes
+ansible_python_interpreter='/usr/bin/python3'  # is required for use python3
 
 [pgbackrest:vars]
 ansible_user='postgres'
