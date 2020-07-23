@@ -26,7 +26,7 @@ synchronous_mode_strict: false  # if 'true' then block all client writes to the 
 
 
 # Load Balancing
-with_haproxy_load_balancing: false  # or 'true' if you want to install and configure the load-balancing
+with_haproxy_load_balancing: true  # or 'true' if you want to install and configure the load-balancing
 # if with_haproxy_load_balancing: true and cluster_vip is specified
 keepalived_virtual_router_id: "133"  # specify a unique virtual_router_id
 
