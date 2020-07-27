@@ -5,6 +5,10 @@
 # "postgresql_exists='true'" if PostgreSQL is already exists and running on master (for initial deployment only)
 # "hostname=" variable is optional (used to change the server name)
 
+10.128.64.140 ansible_ssh_private_key_file='./.vagrant/machines/pgnode01/virtualbox/private_key'
+10.128.64.142 ansible_ssh_private_key_file='./.vagrant/machines/pgnode02/virtualbox/private_key'
+10.128.64.143 ansible_ssh_private_key_file='./.vagrant/machines/pgnode03/virtualbox/private_key'
+
 # if dcs_exists: false and dcs_type: "etcd" (in vars/main.yml)
 [etcd_cluster]  # recommendation: 3 or 5-7 nodes
 10.128.64.140
@@ -33,7 +37,7 @@ replica
 
 
 # In this example, all components will be installed on PostgreSQL nodes
-# You can deploy the etcd cluster and the haproxy balancers on other dedicated servers. 
+# You can deploy the etcd cluster and the haproxy balancers on other dedicated servers.
 
 
 # if pgbackrest_install: true and "repo_host" is set (in vars/main.yml)
@@ -44,10 +48,8 @@ replica
 [all:vars]
 ansible_connection='ssh'
 ansible_ssh_port='22'
-ansible_user='root'
-ansible_ssh_pass='secretpassword'  # "sshpass" package is required for use "ansible_ssh_pass"
-# ansible_ssh_private_key_file=
-# ansible_python_interpreter='/usr/bin/python3'  # is required for use python3
+ansible_user='vagrant'
+ansible_python_interpreter='/usr/bin/python3'
 
 [pgbackrest:vars]
 ansible_user='postgres'
